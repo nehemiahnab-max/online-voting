@@ -1,0 +1,132 @@
+-- =====================================================
+-- DATABASE: online_voting
+-- =====================================================
+CREATE DATABASE IF NOT EXISTS online_voting;
+USE online_voting;
+
+-- =====================================================
+-- TABLE: users
+-- =====================================================
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    role ENUM('admin', 'candidate', 'voter') DEFAULT 'voter',
+    voter_id VARCHAR(50) UNIQUE,
+    profile_pic VARCHAR(255) DEFAULT 'default.png',
+    email_verified BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =====================================================
+-- TABLE: candidates
+-- =====================================================
+CREATE TABLE IF NOT EXISTS candidates (
+    candidateID INT AUTO_INCREMENT PRIMARY KEY,
+    userID INT UNIQUE NOT NULL,
+    manifesto TEXT,
+    slogan VARCHAR(255),
+    party_name VARCHAR(100),
+    party_symbol VARCHAR(255),
+    approved BOOLEAN DEFAULT FALSE,
+    approved_at TIMESTAMP NULL,
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_votes INT DEFAULT 0,
+    FOREIGN KEY (userID) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =====================================================
+-- TABLE: elections
+-- =====================================================
+CREATE TABLE IF NOT EXISTS elections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    status ENUM('upcoming', 'active', 'closed') DEFAULT 'upcoming',
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- =====================================================
+-- TABLE: votes
+-- =====================================================
+CREATE TABLE IF NOT EXISTS votes (
+    voteID INT AUTO_INCREMENT PRIMARY KEY,
+    candidateID INT NOT NULL,
+    voterID INT NOT NULL,
+    electionID INT NOT NULL,
+    voted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    FOREIGN KEY (candidateID) REFERENCES candidates(candidateID) ON DELETE CASCADE,
+    FOREIGN KEY (voterID) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (electionID) REFERENCES elections(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_vote (voterID, electionID)
+);
+
+-- =====================================================
+-- TABLE: activity_logs
+-- =====================================================
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    action VARCHAR(100) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- =====================================================
+-- TABLE: notifications
+-- =====================================================
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(200),
+    message TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =====================================================
+-- SAMPLE DATA
+-- =====================================================
+
+-- Admin (password: admin123)
+INSERT INTO users (name, email, password, role, email_verified) 
+VALUES ('Administrator', 'admin@votingsystem.com', MD5('admin123'), 'admin', 1);
+
+-- Voter (password: voter123)
+INSERT INTO users (name, email, password, phone, role, voter_id, email_verified) 
+VALUES ('John Mwalimu', 'voter@example.com', MD5('voter123'), '0712345678', 'voter', 'VOT' . MD5(RAND()), 1);
+
+-- Candidate (password: candidate123)
+INSERT INTO users (name, email, password, phone, role, email_verified) 
+VALUES ('Jane Mkandarasi', 'candidate@example.com', MD5('candidate123'), '0712345679', 'candidate', 1);
+
+-- Candidate details
+INSERT INTO candidates (userID, manifesto, slogan, party_name, approved) 
+VALUES (3, 'I will build schools, hospitals, and roads. Education for all children!', 'Better Future Together', 'Development Party', 1);
+
+-- Active election
+INSERT INTO elections (title, description, start_date, end_date, status, created_by) 
+VALUES ('General Election 2025', 
+        'Vote for your preferred candidate to lead our community into a brighter future. Every vote counts!', 
+        NOW(), 
+        DATE_ADD(NOW(), INTERVAL 7 DAY), 
+        'active', 
+        1);
+
+
+
+        ---------------------------------------------
+        
