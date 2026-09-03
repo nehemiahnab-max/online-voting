@@ -28,7 +28,7 @@ $files = [
     'logout.php'
 ];
 
-foreach ($files as $file) {
+foreach ($files as $file ){
     if (file_exists($file)) {
         echo "✅ $file - EXISTS\n";
     } else {
@@ -37,3 +37,4 @@ foreach ($files as $file) {
 }
 echo "</pre>";
 ?>
+nehemia
