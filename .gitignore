@@ -1,0 +1,42 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+*.key
+*.pem
+
+# Database dumps and local database files
+*.dump
+*.bak
+*.sql.gz
+*.sqlite
+*.sqlite3
+assets/image/database
+database-backup.sql
+database-backup-*.sql
+
+# Runtime files
+*.log
+logs/
+tmp/
+temp/
+cache/
+uploads/
+storage/
+
+# PHP and editor generated files
+vendor/
+composer.lock
+.phpunit.result.cache
+.idea/
+.vscode/
+!.vscode/settings.example.json
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

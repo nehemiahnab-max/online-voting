@@ -2,12 +2,13 @@
 //config/db.php
 session_start();
 
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db = 'online_voting';
+$host = getenv('DB_HOST') ?: 'localhost';
+$user = getenv('DB_USER') ?: 'root';
+$pass = getenv('DB_PASSWORD') ?: '';
+$db = getenv('DB_NAME') ?: 'online_voting';
+$port = (int) (getenv('DB_PORT') ?: 3306);
 
-$conn = new mysqli($host, $user, $pass, $db);
+$conn = new mysqli($host, $user, $pass, $db, $port);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -31,8 +32,9 @@ function redirect($url) {
     exit();
 }
 
-// Base URL - change this to match your setup
-define('BASE_URL', '/online_voting/');
+// Set BASE_URL to / on Render; the local default preserves the existing setup.
+$base_url = getenv('BASE_URL') ?: '/online_voting/';
+define('BASE_URL', rtrim($base_url, '/') . '/');
 ?>
 
 
